@@ -11,7 +11,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -51,6 +53,12 @@ public class EmployeeController {
     @DeleteMapping("/{id}")
     private void deleteEmployeeById(UUID id) {
         employeeService.deleteEmployeeById(id);
+    }
+
+    @PostMapping("/{id}/avatar")
+    public String uploadAvatar(@RequestParam("avatar") MultipartFile file, @PathVariable UUID id) throws IOException {
+        return employeeService.uploadAvatar(file, id);
+
     }
 
 }

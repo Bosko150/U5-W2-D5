@@ -1,5 +1,7 @@
 package francescocossu.u5w2d5.services;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import francescocossu.u5w2d5.entities.Employee;
 import francescocossu.u5w2d5.exceptions.NotFoundException;
 import francescocossu.u5w2d5.payloads.EmployeeDTO;
@@ -10,13 +12,17 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.UUID;
 
 @Service
 public class EmployeeService {
     @Autowired
     EmployeeRepository employeeRepository;
+    @Autowired
+    Cloudinary cloudinaryService;
 
 
     public Employee saveEmployee(EmployeeDTO employeePayload) {
@@ -54,6 +60,16 @@ public class EmployeeService {
         foundEmployee.setEmail(updatedEmployee.getEmail());
         foundEmployee.setAvatarUrl(updatedEmployee.getAvatarUrl());
         return employeeRepository.save(foundEmployee);
+    }
+
+    public String uploadAvatar(MultipartFile file, UUID id) throws IOException {
+        String cloudinaryUrl = cloudinaryService.uploader().upload(file.getBytes(), ObjectUtils.emptyMap()).get("url").toString();
+
+        Employee employee = getEmployeeById(id);
+        employee.setAvatarUrl(cloudinaryUrl);
+        employeeRepository.save(employee);
+        return cloudinaryUrl;
+
     }
 
 
