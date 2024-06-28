@@ -2,7 +2,12 @@ package francescocossu.u5w2d5.services;
 
 
 import francescocossu.u5w2d5.entities.Device;
+import francescocossu.u5w2d5.entities.DeviceStatus;
+import francescocossu.u5w2d5.entities.DeviceType;
+import francescocossu.u5w2d5.entities.Employee;
 import francescocossu.u5w2d5.exceptions.NotFoundException;
+import francescocossu.u5w2d5.payloads.DeviceDTO;
+import francescocossu.u5w2d5.payloads.UpdateDeviceDTO;
 import francescocossu.u5w2d5.repositories.DeviceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -18,9 +23,13 @@ public class DeviceService {
 
     @Autowired
     DeviceRepository deviceRepository;
+    @Autowired
+    EmployeeService employeeService;
 
-    public Device saveDevice(Device device) {
-        return deviceRepository.save(device);
+    public Device saveDevice(DeviceDTO device) {
+        Device deviceToSave = new Device(DeviceType.getDeviceType(device.deviceType()), DeviceStatus.DISPOSITIVO_DISPONIBILE, null);
+
+        return deviceRepository.save(deviceToSave);
     }
 
     public Page<Device> getAllDevices(int pageNumbr, int pageSize, String sortBy) {
@@ -35,7 +44,8 @@ public class DeviceService {
     }
 
 
-    public Device getByDeviceIdAndUpdate(UUID id, Device updatedDevice) {
+    public Device getByDeviceIdAndUpdate(UUID id, UpdateDeviceDTO updatedDevicePayload) {
+        Device updatedDevice = new Device(DeviceType.getDeviceType(updatedDevicePayload.deviceType()), DeviceStatus.getDeviceStatus(updatedDevicePayload.deviceStatus()), updatedDevicePayload.employeeID() != null ? employeeService.getEmployeeById(updatedDevicePayload.employeeID()) : null);
         Device foundDevice = getDeviceById(id);
         foundDevice.setDeviceType(updatedDevice.getDeviceType());
         foundDevice.setDeviceStatus(updatedDevice.getDeviceStatus());
@@ -45,6 +55,19 @@ public class DeviceService {
 
     public void deleteDeviceById(UUID id) {
         deviceRepository.deleteById(id);
+    }
+
+    public Device assignDeviceToEmployee(UUID deviceId, UUID employeeId) {
+        Device device = getDeviceById(deviceId);
+        Employee employee = employeeService.getEmployeeById(employeeId);
+        if (device.getDeviceStatus() == DeviceStatus.DISPOSITIVO_ASSEGNATO) {
+            throw new IllegalArgumentException("Device already assigned");
+        }
+
+        device.setEmployee(employee);
+        device.setDeviceStatus(DeviceStatus.DISPOSITIVO_ASSEGNATO);
+
+        return deviceRepository.save(device);
     }
 
 }

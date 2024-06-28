@@ -17,4 +17,5 @@ public enum DeviceStatus {
             default -> null;
         };
 
+    }
 }

@@ -1,5 +1,7 @@
 package francescocossu.u5w2d5.entities;
 
+import francescocossu.u5w2d5.exceptions.BadRequestException;
+
 public enum DeviceType {
     SMARTPHONE,
     TABLET,
@@ -10,7 +12,8 @@ public enum DeviceType {
             case "SMARTPHONE" -> DeviceType.SMARTPHONE;
             case "TABLET" -> DeviceType.TABLET;
             case "LAPTOP" -> DeviceType.LAPTOP;
-            default -> null;
+            default ->
+                    throw new BadRequestException("Invalid device type. Must be either 'smartphone', 'tablet' or 'laptop'");
         };
     }
 }

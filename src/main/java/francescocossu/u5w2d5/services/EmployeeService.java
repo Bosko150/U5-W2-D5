@@ -2,6 +2,7 @@ package francescocossu.u5w2d5.services;
 
 import francescocossu.u5w2d5.entities.Employee;
 import francescocossu.u5w2d5.exceptions.NotFoundException;
+import francescocossu.u5w2d5.payloads.EmployeeDTO;
 import francescocossu.u5w2d5.repositories.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -18,7 +19,13 @@ public class EmployeeService {
     EmployeeRepository employeeRepository;
 
 
-    public Employee saveEmployee(Employee employee) {
+    public Employee saveEmployee(EmployeeDTO employeePayload) {
+        this.employeeRepository.findByEmail(employeePayload.email()).ifPresent(employee -> {
+            throw new IllegalArgumentException("Email already in use");
+        });
+
+        Employee employee = new Employee(employeePayload.username(), employeePayload.name(), employeePayload.surname(),
+                employeePayload.email());
         return employeeRepository.save(employee);
     }
 
@@ -38,7 +45,8 @@ public class EmployeeService {
         employeeRepository.deleteById(id);
     }
 
-    public Employee getByEmployeeIdAndUpdate(UUID id, Employee updatedEmployee) {
+    public Employee getByEmployeeIdAndUpdate(UUID id, EmployeeDTO updatedEmployeePayload) {
+        Employee updatedEmployee = new Employee(updatedEmployeePayload.username(), updatedEmployeePayload.name(), updatedEmployeePayload.surname(), updatedEmployeePayload.email());
         Employee foundEmployee = getEmployeeById(id);
         foundEmployee.setUsername(updatedEmployee.getUsername());
         foundEmployee.setName(updatedEmployee.getName());

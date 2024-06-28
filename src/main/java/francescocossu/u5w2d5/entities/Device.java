@@ -23,9 +23,11 @@ public class Device {
     @JoinColumn(name = "userID")
     private Employee employee;
 
-    public Device(DeviceType deviceType, DeviceStatus deviceStatus) {
+    public Device(DeviceType deviceType, DeviceStatus deviceStatus, Employee employee) {
         this.deviceType = deviceType;
         this.deviceStatus = deviceStatus;
+        this.employee = employee;
     }
+
 
 }
