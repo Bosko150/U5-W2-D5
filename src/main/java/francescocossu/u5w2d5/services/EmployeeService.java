@@ -31,7 +31,7 @@ public class EmployeeService {
         });
 
         Employee employee = new Employee(employeePayload.username(), employeePayload.name(), employeePayload.surname(),
-                employeePayload.email());
+                employeePayload.email(), employeePayload.password());
         return employeeRepository.save(employee);
     }
 
@@ -52,7 +52,7 @@ public class EmployeeService {
     }
 
     public Employee getByEmployeeIdAndUpdate(UUID id, EmployeeDTO updatedEmployeePayload) {
-        Employee updatedEmployee = new Employee(updatedEmployeePayload.username(), updatedEmployeePayload.name(), updatedEmployeePayload.surname(), updatedEmployeePayload.email());
+        Employee updatedEmployee = new Employee(updatedEmployeePayload.username(), updatedEmployeePayload.name(), updatedEmployeePayload.surname(), updatedEmployeePayload.email(), updatedEmployeePayload.password());
         Employee foundEmployee = getEmployeeById(id);
         foundEmployee.setUsername(updatedEmployee.getUsername());
         foundEmployee.setName(updatedEmployee.getName());
@@ -70,6 +70,10 @@ public class EmployeeService {
         employeeRepository.save(employee);
         return cloudinaryUrl;
 
+    }
+
+    public Employee findByEmail(String email) {
+        return employeeRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Utende con email" + email + "non trovato"));
     }
 
 

@@ -14,6 +14,8 @@ public record EmployeeDTO(
         String surname,
         @NotEmpty(message = "Email cannot be empty")
         @Email
-        String email
+        String email,
+        @NotEmpty(message = "Password cannot be empty")
+        String password
 ) {
 }

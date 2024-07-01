@@ -34,13 +34,6 @@ public class EmployeeController {
         return employeeService.getEmployeeById(id);
     }
 
-    @PostMapping
-    private Employee saveEmployee(@RequestBody @Validated EmployeeDTO employeePayload, BindingResult validationResult) {
-        if (validationResult.hasErrors()) {
-            throw new BadRequestException(validationResult.getAllErrors().stream().map(ObjectError::getDefaultMessage).collect(Collectors.joining(",")));
-        }
-        return employeeService.saveEmployee(employeePayload);
-    }
 
     @PutMapping("/{id}")
     public Employee updateEmployeeById(@PathVariable UUID id, @RequestBody @Validated EmployeeDTO employeePayload, BindingResult validationResult) {
