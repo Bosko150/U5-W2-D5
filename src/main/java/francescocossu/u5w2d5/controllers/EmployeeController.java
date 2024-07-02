@@ -7,6 +7,8 @@ import francescocossu.u5w2d5.payloads.EmployeeDTO;
 import francescocossu.u5w2d5.services.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
@@ -29,13 +31,34 @@ public class EmployeeController {
         return employeeService.getAllEmployees(0, 10, "name");
     }
 
+    @GetMapping("/me")
+    public Employee getProfile(@AuthenticationPrincipal Employee currentlyAuthEmployee) {
+        return currentlyAuthEmployee;
+
+    }
+
+    @PutMapping("/me")
+    public Employee updateProfile(@AuthenticationPrincipal Employee currentlyAuthEmployee, @RequestBody @Validated EmployeeDTO employeePayload, BindingResult validationResult) {
+        return employeeService.getByEmployeeIdAndUpdate(currentlyAuthEmployee.getId(), employeePayload);
+
+    }
+
+    @DeleteMapping("/me")
+    public void deleteProfile(@AuthenticationPrincipal Employee currentlyAuthEmployee) {
+
+        employeeService.deleteEmployeeById(currentlyAuthEmployee.getId());
+    }
+
+
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     private Employee getEmployeeById(UUID id) {
         return employeeService.getEmployeeById(id);
     }
 
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public Employee updateEmployeeById(@PathVariable UUID id, @RequestBody @Validated EmployeeDTO employeePayload, BindingResult validationResult) {
         if (validationResult.hasErrors()) {
             throw new BadRequestException(validationResult.getAllErrors().stream().map(ObjectError::getDefaultMessage).collect(Collectors.joining(", ")));
@@ -44,6 +67,7 @@ public class EmployeeController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     private void deleteEmployeeById(UUID id) {
         employeeService.deleteEmployeeById(id);
     }

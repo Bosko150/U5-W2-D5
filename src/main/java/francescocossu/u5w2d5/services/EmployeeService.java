@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,6 +24,8 @@ public class EmployeeService {
     EmployeeRepository employeeRepository;
     @Autowired
     Cloudinary cloudinaryService;
+    @Autowired
+    PasswordEncoder bcrypt;
 
 
     public Employee saveEmployee(EmployeeDTO employeePayload) {
@@ -31,7 +34,7 @@ public class EmployeeService {
         });
 
         Employee employee = new Employee(employeePayload.username(), employeePayload.name(), employeePayload.surname(),
-                employeePayload.email(), employeePayload.password());
+                employeePayload.email(), bcrypt.encode(employeePayload.password()));
         return employeeRepository.save(employee);
     }
 
@@ -52,13 +55,14 @@ public class EmployeeService {
     }
 
     public Employee getByEmployeeIdAndUpdate(UUID id, EmployeeDTO updatedEmployeePayload) {
-        Employee updatedEmployee = new Employee(updatedEmployeePayload.username(), updatedEmployeePayload.name(), updatedEmployeePayload.surname(), updatedEmployeePayload.email(), updatedEmployeePayload.password());
+        Employee updatedEmployee = new Employee(updatedEmployeePayload.username(), updatedEmployeePayload.name(), updatedEmployeePayload.surname(), updatedEmployeePayload.email(), bcrypt.encode(updatedEmployeePayload.password()));
         Employee foundEmployee = getEmployeeById(id);
         foundEmployee.setUsername(updatedEmployee.getUsername());
         foundEmployee.setName(updatedEmployee.getName());
         foundEmployee.setSurname(updatedEmployee.getSurname());
         foundEmployee.setEmail(updatedEmployee.getEmail());
         foundEmployee.setAvatarUrl(updatedEmployee.getAvatarUrl());
+        foundEmployee.setPassword(updatedEmployee.getPassword());
         return employeeRepository.save(foundEmployee);
     }
 

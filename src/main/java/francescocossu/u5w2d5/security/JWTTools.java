@@ -29,4 +29,8 @@ public class JWTTools {
             throw new UnauthorizedException("Invalid token, please try again");
         }
     }
+
+    public String extractIdFromToken(String token) {
+        return Jwts.parser().verifyWith(Keys.hmacShaKeyFor(secret.getBytes())).build().parseClaimsJws(token).getPayload().getSubject();
+    }
 }
